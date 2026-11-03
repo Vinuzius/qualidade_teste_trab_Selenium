@@ -1,9 +1,6 @@
 package br.com.aulaSelenium;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.JavascriptExecutor;
@@ -21,10 +18,14 @@ import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.TestInstance;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AutomationExerciseTest {
 
     private static final String URL = "https://automationexercise.com/";
@@ -36,22 +37,49 @@ class AutomationExerciseTest {
     private WebDriver driver;
     private WebDriverWait wait;
 
-    @BeforeEach
-    void setUp() {
+    /**
+     * Inicializa o navegador uma única vez
+     * antes da execução dos testes.
+     */
+    @BeforeAll
+    void setUpBrowser() {
+
         FirefoxOptions options = new FirefoxOptions();
+
         driver = new FirefoxDriver(options);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        wait = new WebDriverWait(
+                driver,
+                Duration.ofSeconds(10)
+        );
 
         driver.manage().window().maximize();
-        driver.get(URL);
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.cssSelector("a[href='/login']")
-        ));
     }
 
-    @AfterEach
+    /**
+     * Prepara a página inicial antes de cada teste.
+     */
+    @BeforeEach
+    void setUp() {
+
+        driver.manage().deleteAllCookies();
+
+        driver.get(URL);
+
+        wait.until(
+                ExpectedConditions.visibilityOfElementLocated(
+                        By.cssSelector("a[href='/login']")
+                )
+        );
+    }
+
+    /**
+     * Encerra o navegador somente depois
+     * da execução de todos os testes.
+     */
+    @AfterAll
     void tearDown() {
+
         if (driver != null) {
             driver.quit();
         }
